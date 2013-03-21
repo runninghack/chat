@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+	<script src="/javascripts/jquery.js"></script>
+	<!-- <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script> -->
+	<script src="/socket.io/socket.io.js"></script>
+	<script>
+	    var socket = io.connect();
+		var username = "<%= name %>";
+		socket.on('connect',function(){
+    		socket.emit('addme',username);
+		});
+		
+		socket.on('chat',function(username,data){
+		    var p = document.createElement('p');
+			p.innerHTML = username + ': ' + data;
+            document.getElementById('output').appendChild(p);			
+		});
+		
+		<!-- 接收私人信息 -->
+		socket.on('private message',function(from, msg){
+		    var p = document.createElement('p');
+			p.innerHTML = from + ': ' + msg;
+			document.getElementById('output').appendChild(p);
+		});
+		
+		<!-- 刷新在线列表 -->
+		socket.on('online list', function(user){
+			showonline(user);
+		});
+		
+		<!-- 发送按钮响应 -->
+		window.addEventListener('load',function(){
+		    document.getElementById('sendtext').addEventListener('click',function(){
+			    var toname = document.getElementById('toname').value;
+				var text = document.getElementById('data').value;
+				alert(toname+text);
+				if(toname.length === 0){<!-- 没有具体的发送对象，广播 -->
+				    socket.emit('sendchat',text);
+				}
+				else{
+				    socket.emit('private message',toname,text);
+				}
+			},false);
+		},false);
+		
+		<!-- 显示在线列表 -->
+	    var showonline = function(users){	
+            var html = '';
+		    users.forEach(function(v){
+				html += '<div class="line">' + v + '</div>';
+			});
+			<!-- alert(html); -->
+			$('#nickname').html(html);
+	    }
+	</script>
+  </head>
+  <body>
+    
+	<div id="chat">
+	    <div id="online">
+		    <h3>在线好友</h3>
+			<div id="nickname">
+			    <div class="line">a</div>
+			</div>
+		</div>
+		<div id="messages">
+		    <div id="output"></div>
+		</div>
+	</div>	
+	<div id="send">	
+	    <label class="control-label" for="toname">发送给</label>
+		<input type="text" id="toname" /></br>
+		<input type="text" id="data" size="100" /></br>
+		<input type="button" id="sendtext" value="Send Text" />
+	</div>
+  </body>
+</html>
