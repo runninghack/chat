@@ -1,0 +1,1 @@
+(function(){var odiv='<div style="width:100px;height:100px;border:1px solid black;"><p>nihao</p></div>';var d=document.createElement('div');d.innerHTML=odiv;odiv=d.firstChild;odiv.style.position = "fixed";odiv.style.left=400+'px';odiv.style.top=300+'px';document.body.appendChild(odiv);})()
